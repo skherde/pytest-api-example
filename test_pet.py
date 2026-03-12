@@ -1,4 +1,4 @@
-from jsonschema import validate
+from jsonschema import validate, ValidationError
 import pytest
 import schemas
 import api_helpers
@@ -14,10 +14,17 @@ def test_pet_schema():
 
     response = api_helpers.get_api_data(test_endpoint)
 
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Ecpected 200 , got {response.status_code}"
+
+    data = response.json()
+
 
     # Validate the response schema against the defined schema in schemas.py
-    validate(instance=response.json(), schema=schemas.pet)
+    try:
+        validate(instance=data, schema=schemas.pet)
+    except ValidationError as e:
+        print("Schema validation error", e.message)
+        assert False, f"Schema validation failed: {e.message}"
 
 '''
 TODO: Finish this test by...
@@ -26,7 +33,7 @@ TODO: Finish this test by...
 3) Validate the 'status' property in the response is equal to the expected status
 4) Validate the schema for each object in the response
 '''
-@pytest.mark.parametrize("status", [("available")])
+@pytest.mark.parametrize("status", ["available", "sold", "pending"])
 def test_find_by_status_200(status):
     test_endpoint = "/pets/findByStatus"
     params = {
@@ -34,7 +41,12 @@ def test_find_by_status_200(status):
     }
 
     response = api_helpers.get_api_data(test_endpoint, params)
-    # TODO...
+    assert response.status_code ==200, f"Expected 200, got {response.status_code}"
+
+    pets = response.json()
+    for pet in pets:
+        assert pet["status"] == status, f"Expected status '{status}', got '{pet['status']}'"
+        validate (instance=pet, schema=schemas.pet)
 
 '''
 TODO: Finish this test by...
@@ -42,5 +54,11 @@ TODO: Finish this test by...
 2) Parameterizing the test for any edge cases
 '''
 def test_get_by_id_404():
-    # TODO...
-    pass
+    
+    endpoint = f"/pets/10"
+    response = api_helpers.get_api_data(endpoint)
+
+    assert response.status_code == 404 , f" Expected 404 for per={pet_id}, got (response.status_code)"
+    data = response.json()
+    if "message" in data:
+        print(f" API reponse message for pet_id = (pet_id): (data('message'))")
