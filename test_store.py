@@ -13,22 +13,30 @@ TODO: Finish this test by...
 4) Validate the response message "Order and pet status updated successfully"
 '''
 
-    @pytest.fixture
-    def test_order_id():
 
-        return 1 #In real world,we can use post API to create new order and return ID
+@pytest.fixture
+def test_order_id():
+    # In real world, we can use POST API to create new order and return ID
+    return 1
 
-    def test_patch_order_by_id(test_order_id):
-    
-    endpoint = f"/store/order/(test_order_id)"
-    payload = ("status": "sold")
+
+def test_patch_order_by_id(test_order_id):
+
+    endpoint = f"/store/order/{test_order_id}"
+
+    payload = {
+        "status": "sold"
+    }
 
     response = api_helpers.patch_api_data(endpoint, payload)
-    assert response.status_code == 200 , f"Expected 200, got (response.status_code)"
 
-    body = response.json
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
-    assert body.get("message") == "Order and pat status updated successfully", f"Unexpected message: (body.get('message))"
+    body = response.json()
 
-    assert body.get("status") == "sold", f" Expected status 'sold, got (body.get('status'))"
+    assert body.get("message") == "Order and part status updated successfully", \
+        f"Unexpected message: {body.get('message')}"
+
+    assert body.get("status") == "sold", \
+        f"Expected status 'sold', got {body.get('status')}"
 
