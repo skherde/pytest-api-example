@@ -6,7 +6,7 @@ pet = {
             "type": "integer"
         },
         "name": {
-            "type": "string"   #I changed type from integer to string since type was incorrect.
+            "type": "string"   #I changed type from integer to string since type was incorrect for name.
         },
         "type": {
             "type": "string",
